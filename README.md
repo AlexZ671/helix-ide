@@ -12,16 +12,9 @@ It's a single layout: Helix on top (~70%), a persistent terminal below (~30%),
 launched with one command — `hx`. Quitting Helix (`:q`) tears the whole session
 down and drops you back to your normal shell.
 
-```
-┌──────────────────────────────────────┐
-│  Helix              (editor pane)     │
-│  src/main.rs                          │
-│                                       │
-├──────────────────────────────────────┤
-│  $ cargo test       (terminal pane)   │
-└──────────────────────────────────────┘
-   ↑ everything recolours together when you :theme
-```
+![Live theme transition — the editor, frames, terminal and window background all fade together when you `:theme`](assets/demo.gif)
+
+<sub>Switching Helix themes with `:theme` — editor, pane frames, the bottom terminal and the kitty window background all fade together. (Regenerate with `assets/record-demo.sh`.)</sub>
 
 ## How the theme sync works
 
