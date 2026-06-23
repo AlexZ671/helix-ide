@@ -1,0 +1,28 @@
+// Тема под цвета редактора (тёплая палитра, как в kitty/quickshell)
+theme "beans"
+themes {
+    beans {
+        fg "#EFD2C5"
+        bg "#111111"
+        black "#111111"
+        red "#FF5546"
+        green "#535353"  // цвет рамки активной панели — приглушённый тёмно-серый
+        yellow "#F8BF6F"
+        blue "#CCB4AB"
+        magenta "#F08F99"
+        cyan "#FFBE89"
+        white "#EFD2C5"
+        orange "#FFBE89"
+    }
+}
+
+// Рамки панелей включены — тёмно-серая рамка выделяет терминал (и редактор)
+pane_frames true
+
+// Не показывать стартовые подсказки ("About Zellij" / Zellij Tip ...)
+show_startup_tips false
+
+// Навигация (без префикса):
+//   Alt + ↑/↓/←/→  — между панелями
+//   Alt + +/-       — размер активной панели
+// Ctrl+p — режим панелей, Ctrl+q — выход из zellij

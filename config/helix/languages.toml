@@ -1,0 +1,29 @@
+[language-server.typescript-language-server.config]
+hostInfo = "helix"
+
+[language-server.typescript-language-server.config.implicitProjectConfiguration]
+checkJs = true
+
+[language-server.csharp-ls]
+command = "csharp-ls"
+
+[[language]]
+name = "c-sharp"
+scope = "source.csharp"
+injection-regex = "c-?sharp"
+file-types = ["cs", "csx", "cake"]
+roots = ["CSharp.sln", "C#.csproj", "*.sln", "*.csproj"]
+indent = { tab-width = 4, unit = "\t" }
+language-servers = ["csharp-ls"]
+
+[[language]]
+name = "javascript"
+language-servers = [
+  { name = "typescript-language-server", only-features = ["diagnostics"] },
+]
+
+[[language]]
+name = "jsx"
+language-servers = [
+  { name = "typescript-language-server", only-features = ["diagnostics"] },
+]

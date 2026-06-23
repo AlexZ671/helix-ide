@@ -1,0 +1,16 @@
+inherits = "base16_default_dark"
+
+"ui.background" = {}
+"ui.virtual.ruler" = {}
+"ui.virtual.indent-guide" = { fg = "#2a2a2a" }
+"ui.virtual.whitespace" = { fg = "#2a2a2a" }
+"ui.gutter" = {}
+"ui.linenr" = { fg = "#555555" }
+"ui.linenr.selected" = { fg = "#e0e0e0", modifiers = ["bold"] }
+
+"diagnostic.error" = { fg = "#f85149", underline = { color = "#f85149", style = "curl" } }
+"diagnostic.warning" = { fg = "#d29922", underline = { color = "#d29922", style = "curl" } }
+"diagnostic.info" = { fg = "#58a6ff", underline = { color = "#58a6ff", style = "curl" } }
+"diagnostic.hint" = { fg = "#3fb950", underline = { color = "#3fb950", style = "curl" } }
+"diagnostic.unnecessary" = { modifiers = ["dim"] }
+"diagnostic.deprecated" = { modifiers = ["crossed_out"] }

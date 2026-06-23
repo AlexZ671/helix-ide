@@ -1,0 +1,15 @@
+# Минималистичный bash-подобный промпт — ТОЛЬКО для IDE-терминала (Helix + zellij).
+# Обычный терминал использует ~/.config/starship.toml без изменений.
+add_newline = false
+format = "$directory$character"
+
+[directory]
+truncation_length = 0
+truncate_to_repo = false
+style = ""
+home_symbol = "~"
+format = "[$path]($style)"
+
+[character]
+success_symbol = "[\\$ ](bold)"
+error_symbol = "[\\$ ](bold)"

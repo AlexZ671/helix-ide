@@ -1,0 +1,33 @@
+theme = "beans"
+
+[editor]
+true-color = true
+line-number = "relative"
+cursorline = true
+bufferline = "multiple"
+auto-completion = true
+completion-trigger-len = 1
+
+[editor.lsp]
+display-messages = true
+display-inlay-hints = true
+
+[editor.inline-diagnostics]
+cursor-line = "warning"
+other-lines = "error"
+prefix-len = 1
+max-diagnostics = 3
+
+[editor.cursor-shape]
+insert = "bar"
+normal = "block"
+select = "underline"
+
+[editor.statusline]
+left = ["mode", "spinner", "file-name", "file-modification-indicator"]
+center = []
+right = ["diagnostics", "selections", "position", "file-encoding", "file-line-ending", "file-type"]
+
+[keys.normal.space]
+f = "file_picker_in_current_directory"
+F = "file_picker"

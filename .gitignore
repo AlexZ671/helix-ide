@@ -1,0 +1,14 @@
+# runtime / generated
+venv/
+__pycache__/
+*.pyc
+presence.log
+theme-state
+
+# local Discord config (install.sh creates it from config.example.json)
+config.json
+hx-presence/config.json
+
+# editor / OS cruft
+.DS_Store
+*.swp

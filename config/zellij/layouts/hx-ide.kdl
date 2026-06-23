@@ -1,0 +1,16 @@
+// IDE-раскладка: Helix сверху (~70%) + постоянный терминал снизу (~30%).
+// Переход между панелями: Alt+↑ (в код) / Alt+↓ (в терминал).
+// Helix запускается через hx-presence (сохраняется Discord Rich Presence).
+// Когда выходишь из Helix (:q) — закрывается вся IDE-сессия и возвращает в обычный терминал.
+layout {
+    pane split_direction="horizontal" {
+        pane name="editor" size="70%" focus=true command="sh" {
+            args "-c" "P=$HOME/.local/share/hx-presence; HX=$(command -v hx 2>/dev/null || command -v helix 2>/dev/null); if [ -x $P/venv/bin/python ]; then $P/venv/bin/python $P/hx_presence.py \"$HX\" ${HX_ARGS:-.}; else \"$HX\" ${HX_ARGS:-.}; fi; zellij kill-session $ZELLIJ_SESSION_NAME"
+        }
+        // Терминал стартует в цвет редактора (#111111); дальше theme_watch.py
+        // перекрашивает его в такт теме Helix. fish -C идёт ПОСЛЕ config.fish.
+        pane name="terminal" size="30%" command="fish" {
+            args "-C" "set -gx STARSHIP_CONFIG $HOME/.config/starship-ide.toml; printf '\\e]11;#111111\\a'; $HOME/.local/share/hx-presence/venv/bin/python $HOME/.local/share/hx-presence/theme_watch.py &"
+        }
+    }
+}
