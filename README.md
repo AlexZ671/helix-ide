@@ -34,17 +34,20 @@ editor area and, when it changes, animates every surface to match:
 | Surface | Driven by | Mechanism |
 |---|---|---|
 | Editor pane + frame | `theme_sync.py` (editor pane) | `zellij action set-pane-color` |
-| kitty window / inter-pane gap | `theme_sync.py` | `kitty @ set-colors` over a socket |
 | Bottom terminal pane | `theme_watch.py` (that pane) | shared `theme-state` file + `set-pane-color` |
+| kitty window / inter-pane gap | `kitty_gap.py` (kitty shell, outside zellij) | OSC 11 to the real kitty tty |
 
-Everything is best-effort: if a zellij/kitty call fails, the editor is never
-disturbed.
+`theme_sync.py` writes the target colour to `theme-state`; the two watchers each
+fade their own surface to it. The gap watcher runs *outside* zellij (the `hx`
+fish function starts it) because OSC 11 only reaches the real kitty window from
+its own tty — zellij swallows it inside a pane. Everything is best-effort: if a
+call fails, the editor is never disturbed.
 
 ## Requirements
 
 - [Helix](https://helix-editor.com) (binary `hx` or `helix`)
 - [zellij](https://zellij.dev) ≥ 0.44 (needs `action set-pane-color`)
-- [kitty](https://sw.kovidgoyal.net/kitty/) (theme-sync target; remote control)
+- [kitty](https://sw.kovidgoyal.net/kitty/) (the IDE terminal; gap recolour via OSC)
 - [fish](https://fishshell.com) (the `hx` launcher is a fish function)
 - Python 3 (for the wrapper; the installer makes a venv with `pyte`)
 - A Nerd Font (default config uses *JetBrains Mono Nerd Font*)
@@ -62,8 +65,7 @@ The installer copies configs into `~/.config`, sets up the Python venv under
 `~/.local/share/hx-presence`, and **backs up anything it overwrites** to
 `<file>.bak-<timestamp>`. Then:
 
-1. **Restart kitty** (so `allow_remote_control` / `listen_on` take effect — the
-   gap won't recolour until you do).
+1. Open a fresh terminal/tab (so fish loads the new `hx` function).
 2. Run `hx`.
 3. Try `:theme onedark`, `:theme dark_plus`, `:theme catppuccin_mocha`, … and
    watch it fade.

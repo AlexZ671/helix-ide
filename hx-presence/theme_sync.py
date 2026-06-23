@@ -23,12 +23,24 @@ from collections import Counter
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 STATE = os.path.join(HERE, "theme-state")
+LOGFILE = os.path.join(HERE, "presence.log")
 
 STEPS = 8          # interpolation steps per transition
 DURATION = 0.30    # seconds per transition
 STABILITY = 0.35   # colour must hold this long before we animate (anti-flicker)
 
 _HEXDIGITS = set("0123456789abcdefABCDEF")
+_DEBUG = os.environ.get("HX_PRESENCE_DEBUG") == "1"
+
+
+def _log(msg):
+    if not _DEBUG:
+        return
+    try:
+        with open(LOGFILE, "a") as f:
+            f.write("%s [sync] %s\n" % (time.strftime("%H:%M:%S"), msg))
+    except OSError:
+        pass
 
 
 # --------------------------------------------------------------------------
@@ -53,10 +65,17 @@ def _lerp(a, b, t):
 
 def _run(args):
     try:
-        subprocess.run(args, stdout=subprocess.DEVNULL,
-                       stderr=subprocess.DEVNULL, timeout=2)
-    except Exception:
-        pass
+        r = subprocess.run(args, stdout=subprocess.PIPE,
+                           stderr=subprocess.STDOUT, timeout=2)
+        if r.returncode != 0:
+            _log("FAILED rc=%d: %s | %s" % (
+                r.returncode, " ".join(args[:6]),
+                r.stdout.decode("utf-8", "replace").strip()[:120]))
+            return False
+        return True
+    except Exception as e:
+        _log("EXC %s: %s" % (args[1] if len(args) > 1 else args[0], e))
+        return False
 
 
 def set_pane_color(bg, fg=None, pane_id=None):
@@ -67,16 +86,6 @@ def set_pane_color(bg, fg=None, pane_id=None):
         args[3:3] = ["--pane-id", pane_id]
     if fg:
         args += ["--fg", fg]
-    _run(args)
-
-
-def kitty_color(socket, bg, fg=None):
-    if not socket:
-        return
-    args = ["kitty", "@", "--to", "unix:%s" % socket,
-            "set-colors", "background=%s" % bg]
-    if fg:
-        args.append("foreground=%s" % fg)
     _run(args)
 
 
@@ -99,10 +108,26 @@ def sample_colors(screen):
             if _is_hex6(ch.fg):
                 fgc[ch.fg] += 1
     if not bgc:
+        _maybe_log_votes(None, bgc, fgc)
         return None
     bg = "#" + bgc.most_common(1)[0][0].upper()
     fg = "#" + fgc.most_common(1)[0][0].upper() if fgc else None
+    _maybe_log_votes((bg, fg), bgc, fgc)
     return bg, fg
+
+
+_last_logged_winner = object()
+
+
+def _maybe_log_votes(winner, bgc, fgc):
+    """When debugging, log the colour vote breakdown — but only when the winning
+    colour changes, so the log isn't spammed every sample."""
+    global _last_logged_winner
+    if not _DEBUG or winner == _last_logged_winner:
+        return
+    _last_logged_winner = winner
+    top = lambda c: ", ".join("#%s x%d" % (k, n) for k, n in c.most_common(4))
+    _log("sample -> %s | bg{%s} | fg{%s}" % (winner, top(bgc), top(fgc)))
 
 
 # --------------------------------------------------------------------------
@@ -112,8 +137,6 @@ class ThemeSync(threading.Thread):
     def __init__(self):
         super().__init__(daemon=True)
         self.pane = os.environ.get("ZELLIJ_PANE_ID")
-        pid = os.environ.get("KITTY_PID")
-        self.socket = "/tmp/kitty-%s" % pid if pid else None
         self._lock = threading.Lock()
         self._desired = None
         self._pending_since = 0.0
@@ -136,9 +159,11 @@ class ThemeSync(threading.Thread):
             pass
 
     def _apply(self, bg, fg):
+        # Editor pane + its frame. The kitty window background (the gap/margin)
+        # is handled out-of-band by kitty_gap.py via OSC 11, since `kitty @`
+        # needs remote control and OSC doesn't survive a zellij pane.
         if self.pane:
             set_pane_color(bg, fg, self.pane)
-        kitty_color(self.socket, bg, fg)
 
     def _animate(self, old, new):
         obg, nbg = _hex2rgb(old[0]), _hex2rgb(new[0])
@@ -162,6 +187,7 @@ class ThemeSync(threading.Thread):
             if time.time() - since < STABILITY:
                 continue
             old, self._current = self._current, desired
+            _log("transition %s -> %s (pane=%s)" % (old, desired, self.pane))
             self._publish(desired)               # let the terminal pane start fading
             if old is None:
                 self._apply(*desired)            # first paint — snap, no animation

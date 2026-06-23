@@ -79,7 +79,7 @@ cat <<EOF
 
 $(say "Done.")
 Next steps:
-  1. Restart kitty completely (so allow_remote_control / listen_on take effect).
+  1. Open a fresh terminal/tab (so fish loads the new hx function).
   2. Run:  hx
   3. In Helix, switch theme with  :theme <name>  — the whole IDE fades to match.
 
